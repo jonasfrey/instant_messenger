@@ -1,0 +1,87 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script type="module" src="https://cdn.space.unibe.ch/JsonToHtml.js"></script>
+
+<script src="https://cdn.space.unibe.ch/Fontawesome.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+
+<div id="app">
+
+
+</div>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+    }
+    body{
+        background:#333;
+        color:#eee;
+    }
+</style>
+
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.getElementById("app").append(
+            jth.parse(
+                {
+                    t:"div", 
+                    c: [
+                        {
+                            c:"content"
+                        },
+                        {
+                            t: "button",
+                            c: [
+                                {
+                                    "v-html": "(data.bool) ? 'true' : 'false'"
+                                },   
+                            ],
+                            "v-on:click": "data.bool = !data.bool"
+                        }
+
+                    ]
+                }, 
+            )
+        );
+
+
+            window.vueObject = new Vue({
+                el: '#app',
+                data: {
+                    data: {
+                        bool: false,
+                    }
+                },
+                mounted: function () {
+
+                    console.log("mounted");
+                },
+                watch: {
+                    "data": {
+                        handler: function(a,b,c,d){
+                            console.log(a,b,c,d);
+                        },
+                        deep: true, 
+                    }
+                },
+                methods: {
+                    "test_method": function(){
+                        console.log("test");
+                    }
+                },
+                computed: {
+                    "test_computed": function(){
+                        return "test_computed"
+                    }
+                }
+            })
+        
+    });
+
+
+</script>
