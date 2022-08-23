@@ -1,4 +1,9 @@
-import {WebSocketServer } from "https://deno.land/x/websocket@v0.1.4/mod.ts";
+import { WebSocketServer } from "https://deno.land/x/websocket@v0.1.4/mod.ts";
+
+import {O_unique_websocket_client } from "./O_unique_websocket_client.module.js"
+
+var a_o_unique_websocket_client = []
+
 // run me like this : 
 // $ deno run -A server.js
 var o_current_run_info = {
@@ -6,26 +11,29 @@ var o_current_run_info = {
     s_current_path_name_file_name : import.meta.url.split('//')
 }
 console.log(o_current_run_info)
+const n_http_server_port = 3333;
+const n_websocket_server_port = 3636;
 
+const o_websocket_server = new WebSocketServer(n_websocket_server_port);
 
-const o_websocket_server = new WebSocketServer(8080);
-o_websocket_server.on(
-  "connection",
-  function (o_websocket_client) {
-  o_websocket_client.on(
-    "message",
-    function (s_message) {
-    console.log(s_message);
-    o_websocket_client.send(s_message);
-  });
+o_websocket_server.on("connection", async function (o_websocket_client) {
+  console.log("Client connected");
+  var o_unique_websocket_client = new O_unique_websocket_client();
+  o_websocket_client.send(JSON.stringify(o_unique_websocket_client));
 });
 
+o_websocket_server.on(
+  "connection",
+  async function (o_websocket_client) {
+    console.log("Client connected");
+    var o_unique_websocket_client = new O_unique_websocket_client();
+    o_websocket_client.send(JSON.stringify(o_unique_websocket_client));
+});
 
 import { serve } from "https://deno.land/std@0.152.0/http/server.ts";
 
-const n_port = 3333;
 
-const handler = async function(o_request){
+const f_serve_handler = async function(o_request){
   // console.log(o_request.url)
   var a_s_part_path = o_request.url.split("/");
   console.log(a_s_part_path)
@@ -49,7 +57,10 @@ const handler = async function(o_request){
     //       }
     //     );
     //   }
-  const s_path_name_file_name = a_s_part_path.slice(3).shift();
+  var s_path_name_file_name = a_s_part_path.slice(3).shift();
+  if(s_path_name_file_name == ""){
+    s_path_name_file_name = "client.html" 
+  }
   const o_s_mime_type = {
     "js": "text/javascript", 
     "html": "text/html"
@@ -70,6 +81,6 @@ const handler = async function(o_request){
     );
 };
 
-await serve(handler, { port: n_port });
+await serve(f_serve_handler, { port: n_http_server_port });
 
 

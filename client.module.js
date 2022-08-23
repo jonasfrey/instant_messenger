@@ -8,23 +8,40 @@ import { O_user } from "./O_user.module.js";
 import Vue from 'https://unpkg.com/vue@2.6.0/dist/vue.esm.browser.min.js';
 var o_json_to_html = new O_json_to_html()
 
+const n_http_server_port = 3333;
+const n_websocket_server_port = 3636;
+const s_host = "localhost"
+const s_websocket_endpoint = `ws://${s_host}:${n_websocket_server_port}`;
 
-import {StandardWebSocketClient } from "https://deno.land/x/websocket@v0.1.4/mod.ts";
-const s_endpoint = "ws://127.0.0.1:8080";
-const o_websocket_client = new StandardWebSocketClient(s_endpoint);
-o_websocket_client.on(
-    "open",
-    function() {
-        console.log("o_websocket_client connected!");
-        o_websocket_client.send("something");
-    }
-);
-o_websocket_client.on(
-    "message",
-    function (s_message) {
-        console.log(s_message);
-    }
-);
+var o_unique_websocket_client = null;
+const o_websocket_client = new WebSocket(s_websocket_endpoint);
+o_websocket_client.onmessage = function (message) {
+    console.log(message)
+};
+
+o_websocket_client.onopen = function(e) {
+    console.log("[open] Connection established");
+    console.log("Sending to server");
+    o_websocket_client.send("My name is John");
+};
+  
+o_websocket_client.onmessage = function(event) {
+    console.log(`[message] Data received from server: ${event.data}`);
+};
+
+o_websocket_client.onclose = function(event) {
+if (event.wasClean) {
+    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+} else {
+    // e.g. server process killed or network down
+    // event.code is usually 1006 in this case
+    console.log('[close] Connection died');
+}
+};
+
+o_websocket_client.onerror = function(error) {
+console.log(`[error] ${error.message}`);
+};
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -68,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 s_o_user_s_password_hashed_sha256: '',   
                 n_f_hash_password_timeout: 0, 
                 o_api: {
-                    s_url: "http://localhost/", 
+                    s_url: `http://${s_host}:${n_http_server_port}/`, 
                 }
             }
         },
