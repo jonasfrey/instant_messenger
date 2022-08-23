@@ -5,7 +5,26 @@ import { O_message_group } from "./O_message_group.module.js";
 import { O_message_group_o_user_o_message } from "./O_message_group_o_user_o_message.module.js";
 import { O_user } from "./O_user.module.js";
 
+import Vue from 'https://unpkg.com/vue@2.6.0/dist/vue.esm.browser.min.js';
 var o_json_to_html = new O_json_to_html()
+
+
+import {StandardWebSocketClient } from "https://deno.land/x/websocket@v0.1.4/mod.ts";
+const s_endpoint = "ws://127.0.0.1:8080";
+const o_websocket_client = new StandardWebSocketClient(s_endpoint);
+o_websocket_client.on(
+    "open",
+    function() {
+        console.log("o_websocket_client connected!");
+        o_websocket_client.send("something");
+    }
+);
+o_websocket_client.on(
+    "message",
+    function (s_message) {
+        console.log(s_message);
+    }
+);
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -28,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             {
                                 s_t: "button", 
                                 "v-on:click" : "f_login",
-                                "v-html": "login"
+                                "v-html": "'login'"
                             },
                         ]
                     }
@@ -40,27 +59,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.vueObject = new Vue({
         el: '#app',
-        data: {
-            b_bool: true,
-            s_o_user_s_email: '',
-            s_o_user_s_password: '',   
-            s_o_user_s_password_hashed_sha256: '',   
-            n_f_hash_password_timeout: 0, 
-            o_api: {
-                s_url: "http://localhost/", 
+        data: function() {
+            return {
+                o_session: null,
+                b_bool: true,
+                s_o_user_s_email: '',
+                s_o_user_s_password: '',   
+                s_o_user_s_password_hashed_sha256: '',   
+                n_f_hash_password_timeout: 0, 
+                o_api: {
+                    s_url: "http://localhost/", 
+                }
             }
         },
         updated: function(){
         },
         mounted:async function () {
-            this.o_session = await f_handle_session();
+            console.log("client.js is running")
+            this.o_session = await this.f_handle_session();
             this.a_o_page = await this.f_a_o_model_name("o_page");
             this.marked = marked
         },
         watch: {
         },
         methods: {
-            f_login: function(){
+            f_login:  async function(){
                 await this.f_hash_password();
                 console.log(this.s_o_user_s_password_hashed_sha256);
             },
@@ -76,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 return hashHex;
             },
-            f_hash_password: function(){
+            f_hash_password: async function(){
                 this.s_o_user_s_password_hashed_sha256 = await this.f_hash_password(this.s_o_user_s_password);
             },
             f_handle_session: async function(){

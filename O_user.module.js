@@ -12,3 +12,4 @@ class O_user{
         this.b_email_confirmed = false
     }
 }
+export {O_user}
