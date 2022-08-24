@@ -18,7 +18,7 @@ const o_websocket_client = new WebSocket(s_websocket_endpoint);
 o_websocket_client.onmessage = function (message) {
     console.log(message)
 };
-
+window.o_websocket_client = o_websocket_client
 o_websocket_client.onopen = function(e) {
     console.log("[open] Connection established");
     console.log("Sending to server");

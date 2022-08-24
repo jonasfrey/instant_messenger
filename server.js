@@ -16,18 +16,24 @@ const n_websocket_server_port = 3636;
 
 const o_websocket_server = new WebSocketServer(n_websocket_server_port);
 
-o_websocket_server.on("connection", async function (o_websocket_client) {
-  console.log("Client connected");
-  var o_unique_websocket_client = new O_unique_websocket_client();
-  o_websocket_client.send(JSON.stringify(o_unique_websocket_client));
-});
+var a_o_websocket_client = []
 
-o_websocket_server.on(
-  "connection",
-  async function (o_websocket_client) {
-    console.log("Client connected");
-    var o_unique_websocket_client = new O_unique_websocket_client();
-    o_websocket_client.send(JSON.stringify(o_unique_websocket_client));
+o_websocket_server.on("connection", async function (o_websocket_client) {
+  console.log(`a new o_websocket_client connected: ${o_websocket_client}`)
+  // console.log(o_websocket_client)
+  // a_o_websocket_client.push(o_websocket_client)
+  var o_unique_websocket_client = new O_unique_websocket_client();
+  o_websocket_client.o_unique_websocket_client = o_unique_websocket_client;
+  o_websocket_client.on(
+    "message", 
+    async function(s_message){
+      console.log(o_websocket_client.o_unique_websocket_client.s_uuid)
+      console.log(a_o_websocket_client[0] == a_o_websocket_client[1]);
+
+      console.log(`o_websocket_client received message ${s_message}`)
+    }
+  )
+  o_websocket_client.send(JSON.stringify(o_unique_websocket_client));
 });
 
 import { serve } from "https://deno.land/std@0.152.0/http/server.ts";
